@@ -1,23 +1,52 @@
-import socket
-
-udp_uip_addr = "127.0.0.1"
-udp_port = 14550
-# declare our serverSocket upon which
-# we will be listening for UDP messages
-serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# One difference is that we will have to bind our declared IP address
-# and port number to our newly declared serverSock
-serverSock.bind((udp_uip_addr, udp_port))
-
-udp_uip_client = "127.0.0.1"
-udp_port_client = 14555
-clientSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-# serverSock.bind((udp_uip_client, udp_port_client)) 
+# import socket programming library 
+import socket 
+  
+# import thread module 
+from _thread import *
+import threading 
+import time
 
 
-while True:
-    data, addr = serverSock.recvfrom(1024)
-    print  data
-    clientSock.sendto(data, (udp_uip_client, udp_port_client))
-    dataclient, addrclient = clientSock.recvfrom(1024)
-    serverSock.sento(dataclient, (udp_uip_addr, udp_port))
+
+relay_IP = input("relay IP: ")
+relay_port = input("relay port: ")
+real_IP = input("real IP: ")
+real_port = input("real port: ")
+otherside_IP = input("otherside IP:")
+otherside_port = input("otherside port:")
+
+relay = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# outconnection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+real = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+real.bind((real_IP,real_port))
+relay.bind((relay_IP,relay_port))
+# outconnecrelay
+# outconnection.bind((otherside_IP,otherside_port))
+
+def outgoing():
+    global relay, real ,relay_IP, relay_port
+    global otherside_IP, otherside_port, real_IP, relay_port
+    while True:
+        out_data, out_addr = real.recvfrom(4048)
+        relay.sendto(out_data, (otherside_IP,otherside_port ))
+        # print("out: ", len(out_data))
+
+def incoming():
+    global relay, real ,relay_IP, relay_port
+    global otherside_IP, otherside_port, real_IP, relay_port
+    while True:
+        in_data, in_addr = relay.recvfrom(4048)
+        relay.sendto(in_data, (real_IP, real_port))
+        # print("in :", len(in_data))
+
+
+def Main():
+
+    start_new_thread(outgoing, ()) 
+    start_new_thread(incoming, ()) 
+    while True:
+        i=0
+
+
+if __name__ == '__main__':
+    Main()
